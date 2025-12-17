@@ -1,175 +1,123 @@
+
+
 # Franquicias API
 
-**Autor:** **Ingeniero Pablo Miguez**
+**Autor:** Ingeniero Pablo Miguez
+
+## Descripción general
+
+Este proyecto implementa un API REST reactivo para la gestión de franquicias.
+Una franquicia contiene sucursales y cada sucursal contiene productos con stock.
+La solución fue desarrollada siguiendo principios de Clean Architecture, programación reactiva, buenas prácticas de diseño, pruebas unitarias y contenedorización con Docker.
+
 
 ---
 
-##  Descripción general
-
-Este proyecto implementa un **API REST reactivo** para la gestión de franquicias.
-
-Una **franquicia** contiene **sucursales** y cada **sucursal** contiene **productos con stock**.
-
-La solución fue desarrollada siguiendo principios de **Clean Architecture**, **programación reactiva**, **buenas prácticas de diseño**, **pruebas unitarias**, **contenedorización con Docker** y **despliegue completo en AWS** utilizando **Infrastructure as Code con Terraform**.
-
-El proyecto cumple con **todos los requerimientos obligatorios** y además implementa **todos los puntos extra solicitados**.
-
----
-
-##  Tecnologías utilizadas
+## Tecnologías utilizadas
 
 * Java 17
-* Spring Boot 3 + WebFlux
-* Programación reactiva con **Project Reactor**
-* MongoDB / Amazon **DocumentDB** (driver compatible)
+* Spring Boot con WebFlux
+* Programación reactiva con Project Reactor
+* MongoDB (reactivo)
 * Maven
 * Docker y Docker Compose
-* Terraform (IaC)
-* AWS: ECR, ECS Fargate, DocumentDB, IAM, VPC
-* JUnit 5, Mockito, Reactor Test
+* JUnit 5, Mockito y Reactor Test
 * Git y GitHub
 
 ---
 
-##  Arquitectura
+## Arquitectura
 
-El proyecto sigue el enfoque de **Clean Architecture**, separando responsabilidades en capas bien definidas:
+El proyecto sigue Clean Architecture, separando responsabilidades en capas claras.
 
+```bash
 FRANQUICIAS-API/
 ├─ franquicias-api/
 │  ├─ .mvn/
 │  │  └─ wrapper/
 │  ├─ iac/
 │  │  └─ terraform/
-│  │     ├─ .terraform/
-│  │     │  └─ providers/
 │  │     ├─ main.tf
 │  │     ├─ providers.tf
 │  │     ├─ variables.tf
 │  │     ├─ outputs.tf
 │  │     ├─ terraform.tfvars
 │  │     ├─ terraform.tfvars.example
-│  │     ├─ terraform.tfstate
-│  │     └─ terraform.tfstate.backup
+│  │     └─ terraform.tfstate*
 │  ├─ src/
 │  │  ├─ main/
 │  │  │  ├─ java/com/accenture/franquicias/
-│  │  │  │  ├─ application/
 │  │  │  │  ├─ domain/
+│  │  │  │  ├─ application/
 │  │  │  │  ├─ infrastructure/
 │  │  │  │  └─ FranquiciasApiApplication.java
 │  │  │  └─ resources/
 │  │  └─ test/
 │  │     └─ java/com/accenture/franquicias/
-│  │        ├─ application/
 │  │        ├─ domain/
+│  │        ├─ application/
 │  │        ├─ infrastructure/
 │  │        └─ FranquiciasApiApplicationTests.java
-│  ├─ target/
-│  ├─ .dockerignore
-│  ├─ .gitattributes
-│  ├─ .gitignore
-│  ├─ docker-compose.yml
 │  ├─ Dockerfile
+│  ├─ docker-compose.yml
 │  ├─ ecs-task-def.json
 │  ├─ ecs-task-execution-trust.json
 │  ├─ pom.xml
-│  ├─ mvnw
-│  ├─ mvnw.cmd
 │  └─ README.md
+```
 
+* **Domain**
+  Contiene el modelo de negocio puro y los puertos. No depende de frameworks ni infraestructura.
 
-### Domain
+* **Application**
+  Contiene los casos de uso que representan las acciones del sistema. Orquesta el dominio y utiliza los puertos.
 
-* Contiene el **modelo de negocio puro**
-* Entidades, value objects y puertos
-* No depende de frameworks ni infraestructura
+* **Infrastructure**
+  Contiene adaptadores técnicos como MongoDB, controladores web, configuración de Spring y manejo de errores.
 
-### Application
-
-* Casos de uso (Use Cases)
-* Orquesta el dominio
-* Contiene la lógica de negocio
-
-### Infrastructure
-
-* Adaptadores técnicos
-* Controladores REST
-* Persistencia MongoDB / DocumentDB
-* Configuración Spring
-* Manejo de errores
-* Integración con AWS
-
-Esta arquitectura facilita:
-
-* Pruebas unitarias
-* Escalabilidad
-* Mantenibilidad
-* Evolución del sistema
+Esta separación permite un código más fácil de probar, mantener y extender.
 
 ---
 
-##  Funcionalidades implementadas
+## Funcionalidades implementadas
 
-### Funcionalidades obligatorias
+### Endpoints obligatorios
 
 * Crear una franquicia
 * Agregar una sucursal a una franquicia
 * Agregar un producto a una sucursal
 * Eliminar un producto de una sucursal
 * Modificar el stock de un producto
-* Obtener el producto con mayor stock por sucursal para una franquicia
+* Obtener, para una franquicia, el producto con mayor stock por cada sucursal
+
+### Características técnicas
+
+* Programación reactiva de extremo a extremo
+* Persistencia con MongoDB reactivo
+* Pruebas unitarias de los casos de uso
+* Contenerización completa con Docker
+* Manejo centralizado de errores HTTP
 
 ---
 
-##  Funcionalidades PLUS implementadas
+## Requisitos previos
 
-Todos los puntos extra solicitados fueron **implementados y validados**:
+Para ejecutar el proyecto se necesita:
 
-###  Programación reactiva
-
-* API completamente reactiva usando **Spring WebFlux**
-* Uso de `Mono` y `Flux`
-* Persistencia reactiva
-
-###  Contenerización con Docker
-
-* Dockerfile optimizado
-* Imagen lista para producción
-* Docker Compose para entorno local
-
-###  Endpoints adicionales (PLUS)
-
-Se implementaron endpoints para **actualizar nombres**, tal como se solicitó:
-
-* Actualizar nombre de franquicia
-* Actualizar nombre de sucursal
-* Actualizar nombre de producto
-
-###  Infrastructure as Code (IaC)
-
-* Aprovisionamiento de infraestructura con **Terraform**
-* Recursos creados:
-
-  * Amazon DocumentDB
-  * Subnet Group
-  * Security Group
-* Variables y outputs documentados
-
-###  Despliegue completo en la nube (AWS)
-
-* Imagen Docker publicada en **Amazon ECR**
-* Aplicación desplegada en **ECS Fargate**
-* Base de datos en **Amazon DocumentDB**
-* Configuración de TLS para DocumentDB
-* Aplicación accesible por IP pública
-* Pruebas realizadas con `curl`
+* Java 17
+* Maven
+* Docker y Docker Compose
+* Git
 
 ---
 
-##  Ejecución local sin Docker
+## Ejecución local sin Docker
 
 ### 1. Levantar MongoDB
+
+Se puede usar MongoDB local o Docker.
+
+Con Docker:
 
 ```bash
 docker run -d -p 27017:27017 --name mongo-local mongo:7
@@ -182,7 +130,7 @@ mvn clean test
 mvn spring-boot:run
 ```
 
-API disponible en:
+La API quedará disponible en:
 
 ```
 http://localhost:8080
@@ -190,123 +138,125 @@ http://localhost:8080
 
 ---
 
-##  Ejecución con Docker (local)
+## Ejecución con Docker (recomendado)
+
+### 1. Construir y levantar todo
+
+Desde la raíz del proyecto:
 
 ```bash
 docker compose up -d --build
 ```
 
-Servicios levantados:
+Esto levanta:
 
 * MongoDB
-* Franquicias API
+* La API de franquicias
 
----
-
-##  Despliegue en AWS (PLUS)
-
-### Arquitectura en AWS
-
-* **ECR**: Repositorio de imágenes Docker
-* **ECS Fargate**: Ejecución de la API sin servidores
-* **DocumentDB**: Persistencia de datos
-* **IAM**: Roles para ECS
-* **Terraform**: Infraestructura como código
-
-### Verificación en AWS
-
-Health check:
+### 2. Verificar contenedores
 
 ```bash
-curl -i http://<IP_PUBLICA>:8080/actuator/health
+docker ps
 ```
 
-Respuesta esperada:
-
-```json
-{"status":"UP"}
-```
-
-Crear franquicia en AWS:
+### 3. Detener servicios
 
 ```bash
-curl -i -X POST http://<IP_PUBLICA>:8080/api/franquicias \
-  -H "Content-Type: application/json" \
-  -d '{"nombre":"Franquicia AWS OK"}'
-```
-
-Respuesta esperada:
-
-```json
-{
-  "id": "...",
-  "nombre": "Franquicia AWS OK",
-  "sucursales": []
-}
+docker compose down
 ```
 
 ---
 
-##  Endpoints de actualización (PLUS)
+## Ejecución de pruebas unitarias
 
-### Actualizar nombre de franquicia
-
-```bash
-PATCH /api/franquicias/{franquiciaId}
-```
-
-### Actualizar nombre de sucursal
-
-```bash
-PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}
-```
-
-### Actualizar nombre de producto
-
-```bash
-PATCH /api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}
-```
-
----
-
-##  Pruebas unitarias
-
-Las pruebas:
-
-* No dependen de Mongo real
-* Cubren casos de uso principales
-* Validan reglas de negocio
+Las pruebas unitarias cubren los casos de uso principales y no dependen de Mongo real.
 
 ```bash
 mvn clean test
 ```
 
----
-
-##  Manejo de errores
-
-* `400 Bad Request`: Datos inválidos
-* `404 Not Found`: Recursos inexistentes
-* `409 Conflict`: Reglas de negocio
-
-Errores devueltos en formato JSON descriptivo.
+Todas las pruebas deben finalizar en **BUILD SUCCESS**.
 
 ---
 
-##  Estado final del proyecto
+## Endpoints y ejemplos de uso
 
-✔ Requerimientos obligatorios completos
-✔ Todos los puntos PLUS implementados
-✔ Dockerización completa
-✔ Infraestructura como código
-✔ Despliegue exitoso en AWS
-✔ Pruebas funcionales y técnicas exitosas
+### Crear franquicia
 
-**Proyecto listo para evaluación técnica.**
+```bash
+curl -i -X POST http://localhost:8080/api/franquicias \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Mi Franquicia"}'
+```
+
+### Agregar sucursal
+
+```bash
+curl -i -X POST http://localhost:8080/api/franquicias/{franquiciaId}/sucursales \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Sucursal Centro"}'
+```
+
+### Agregar producto
+
+```bash
+curl -i -X POST http://localhost:8080/api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos \
+  -H "Content-Type: application/json" \
+  -d '{"nombre":"Producto A","stock":50}'
+```
+
+### Actualizar stock
+
+```bash
+curl -i -X PATCH http://localhost:8080/api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}/stock \
+  -H "Content-Type: application/json" \
+  -d '{"stock":120}'
+```
+
+### Eliminar producto
+
+```bash
+curl -i -X DELETE http://localhost:8080/api/franquicias/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}
+```
+
+### Obtener producto con mayor stock por sucursal
+
+```bash
+curl -i http://localhost:8080/api/franquicias/{franquiciaId}/productos-top-stock-por-sucursal
+```
 
 ---
 
-##  Autor
+## Manejo de errores
+
+* 400 Bad Request para datos inválidos
+* 404 Not Found cuando una franquicia, sucursal o producto no existe
+* 409 Conflict para violaciones de reglas de negocio
+
+Las respuestas de error se devuelven en formato JSON con un mensaje descriptivo.
+
+---
+
+## Estado actual del proyecto
+
+* Funcionalidades obligatorias completas
+* Programación reactiva aplicada
+* Pruebas unitarias implementadas
+* Dockerización completa
+* Listo para evaluación técnica
+
+---
+
+## Próximos pasos (Plus)
+
+* Endpoints para actualizar nombres de franquicia, sucursal y producto
+* Infrastructure as Code con Terraform o CloudFormation
+* Pipeline CI/CD
+* Despliegue en la nube
+
+---
+
+## Autor
 
 **Ingeniero Pablo Miguez**
 
