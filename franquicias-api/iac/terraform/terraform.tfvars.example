@@ -1,0 +1,15 @@
+aws_region   = "us-east-1"
+project_name = "franquicias"
+
+# Estos valores se toman de tu AWS Console en VPC
+vpc_id   = "vpc-xxxxxxxxxxxxxxxxx"
+vpc_cidr = "10.0.0.0/16"
+
+# Subnets privadas recomendadas
+subnet_ids = [
+  "subnet-aaaaaaaaaaaaaaaaa",
+  "subnet-bbbbbbbbbbbbbbbbb"
+]
+
+docdb_username = "adminfranquicias"
+docdb_password = "CAMBIAR_POR_UNA_PASSWORD_SEGURA"

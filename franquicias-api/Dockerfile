@@ -1,33 +1,39 @@
-# Usa una imagen que tiene Maven y Java 17 para compilar el proyecto
 FROM maven:3.9-eclipse-temurin-17 AS build
 
-# Crea una carpeta dentro de la imagen para trabajar
 WORKDIR /app
 
-# Copia el pom primero para aprovechar cache de dependencias
 COPY pom.xml .
-
-# Descarga dependencias antes de copiar el código para acelerar builds siguientes
 RUN mvn -q -e -DskipTests dependency:go-offline
 
-# Copia el resto del proyecto
 COPY src ./src
-
-# Compila y ejecuta tests para garantizar que la imagen solo se construye si todo está bien
 RUN mvn -q clean test package
 
-# Imagen final más liviana solo con Java 17 para ejecutar el jar
-FROM eclipse-temurin:17-jre
+FROM eclipse-temurin:17-jdk
 
-# Crea carpeta de ejecución
 WORKDIR /app
 
-# Copia el jar construido desde la etapa anterior
-# Ajusta el nombre si tu jar tiene un nombre diferente en target
+RUN apt-get update && apt-get install -y curl ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Descarga el bundle global recomendado por AWS para DocumentDB
+RUN curl -sS https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem -o /app/global-bundle.pem
+
+# Crea un truststore propio y mete TODOS los certificados del bundle (no solo el primero)
+RUN rm -f /app/truststore.jks \
+ && awk 'BEGIN {c=0} /BEGIN CERTIFICATE/ {out="/app/cert-" c ".pem"} {print > out} /END CERTIFICATE/ {c++}' /app/global-bundle.pem \
+ && for f in /app/cert-*.pem; do \
+      a=$(basename "$f" .pem); \
+      keytool -importcert -noprompt -trustcacerts \
+        -alias "aws-$a" \
+        -file "$f" \
+        -keystore /app/truststore.jks \
+        -storepass changeit; \
+    done \
+ && keytool -list -keystore /app/truststore.jks -storepass changeit | head -n 50
+
+# Fuerza a Java a usar este truststore
+ENV JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=/app/truststore.jks -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.trustStoreType=JKS"
+
 COPY --from=build /app/target/*.jar app.jar
 
-# Expone el puerto donde corre Spring Boot
 EXPOSE 8080
-
-# Ejecuta la aplicación
 ENTRYPOINT ["java","-jar","app.jar"]
