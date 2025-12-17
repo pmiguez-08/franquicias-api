@@ -35,6 +35,50 @@ El proyecto cumple con **todos los requerimientos obligatorios** y además imple
 
 El proyecto sigue el enfoque de **Clean Architecture**, separando responsabilidades en capas bien definidas:
 
+FRANQUICIAS-API/
+├─ franquicias-api/
+│  ├─ .mvn/
+│  │  └─ wrapper/
+│  ├─ iac/
+│  │  └─ terraform/
+│  │     ├─ .terraform/
+│  │     │  └─ providers/
+│  │     ├─ main.tf
+│  │     ├─ providers.tf
+│  │     ├─ variables.tf
+│  │     ├─ outputs.tf
+│  │     ├─ terraform.tfvars
+│  │     ├─ terraform.tfvars.example
+│  │     ├─ terraform.tfstate
+│  │     └─ terraform.tfstate.backup
+│  ├─ src/
+│  │  ├─ main/
+│  │  │  ├─ java/com/accenture/franquicias/
+│  │  │  │  ├─ application/
+│  │  │  │  ├─ domain/
+│  │  │  │  ├─ infrastructure/
+│  │  │  │  └─ FranquiciasApiApplication.java
+│  │  │  └─ resources/
+│  │  └─ test/
+│  │     └─ java/com/accenture/franquicias/
+│  │        ├─ application/
+│  │        ├─ domain/
+│  │        ├─ infrastructure/
+│  │        └─ FranquiciasApiApplicationTests.java
+│  ├─ target/
+│  ├─ .dockerignore
+│  ├─ .gitattributes
+│  ├─ .gitignore
+│  ├─ docker-compose.yml
+│  ├─ Dockerfile
+│  ├─ ecs-task-def.json
+│  ├─ ecs-task-execution-trust.json
+│  ├─ pom.xml
+│  ├─ mvnw
+│  ├─ mvnw.cmd
+│  └─ README.md
+
+
 ### Domain
 
 * Contiene el **modelo de negocio puro**
