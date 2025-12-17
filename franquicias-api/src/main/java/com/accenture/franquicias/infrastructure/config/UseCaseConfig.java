@@ -42,6 +42,7 @@ public class UseCaseConfig {
 
     @Bean
     public ActualizarNombreFranquiciaUseCase actualizarNombreFranquiciaUseCase(FranquiciaRepositoryPort port) {
+        // Registra el caso de uso para cambiar el nombre de una franquicia
         return new ActualizarNombreFranquiciaUseCase(port);
     }
 

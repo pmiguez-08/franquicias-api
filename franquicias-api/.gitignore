@@ -6,3 +6,11 @@ target/
 *.iml
 .mvn/wrapper/maven-wrapper.jar
 
+# Terraform
+iac/terraform/.terraform/
+iac/terraform/terraform.tfvars
+*.tfstate
+*.tfstate.*
+crash.log
+
+

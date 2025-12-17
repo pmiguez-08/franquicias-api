@@ -1,11 +1,15 @@
 package com.accenture.franquicias.infrastructure.web.controller;
 
+import com.accenture.franquicias.application.usecase.ActualizarNombreFranquiciaUseCase;
+import com.accenture.franquicias.application.usecase.ActualizarNombreProductoUseCase;
+import com.accenture.franquicias.application.usecase.ActualizarNombreSucursalUseCase;
 import com.accenture.franquicias.application.usecase.ActualizarStockProductoUseCase;
 import com.accenture.franquicias.application.usecase.AgregarProductoASucursalUseCase;
 import com.accenture.franquicias.application.usecase.AgregarSucursalAFranquiciaUseCase;
 import com.accenture.franquicias.application.usecase.CrearFranquiciaUseCase;
 import com.accenture.franquicias.application.usecase.EliminarProductoDeSucursalUseCase;
 import com.accenture.franquicias.application.usecase.ObtenerProductoConMasStockPorSucursalUseCase;
+import com.accenture.franquicias.infrastructure.web.dto.ActualizarNombreRequest;
 import com.accenture.franquicias.infrastructure.web.dto.ActualizarStockRequest;
 import com.accenture.franquicias.infrastructure.web.dto.CrearFranquiciaRequest;
 import com.accenture.franquicias.infrastructure.web.dto.CrearProductoRequest;
@@ -30,27 +34,39 @@ public class FranquiciasController {
     private final ActualizarStockProductoUseCase actualizarStockProductoUseCase;
     private final ObtenerProductoConMasStockPorSucursalUseCase obtenerProductoConMasStockPorSucursalUseCase;
 
+    private final ActualizarNombreFranquiciaUseCase actualizarNombreFranquiciaUseCase;
+    private final ActualizarNombreSucursalUseCase actualizarNombreSucursalUseCase;
+    private final ActualizarNombreProductoUseCase actualizarNombreProductoUseCase;
+
     public FranquiciasController(
             CrearFranquiciaUseCase crearFranquiciaUseCase,
             AgregarSucursalAFranquiciaUseCase agregarSucursalAFranquiciaUseCase,
             AgregarProductoASucursalUseCase agregarProductoASucursalUseCase,
             EliminarProductoDeSucursalUseCase eliminarProductoDeSucursalUseCase,
             ActualizarStockProductoUseCase actualizarStockProductoUseCase,
-            ObtenerProductoConMasStockPorSucursalUseCase obtenerProductoConMasStockPorSucursalUseCase
+            ObtenerProductoConMasStockPorSucursalUseCase obtenerProductoConMasStockPorSucursalUseCase,
+            ActualizarNombreFranquiciaUseCase actualizarNombreFranquiciaUseCase,
+            ActualizarNombreSucursalUseCase actualizarNombreSucursalUseCase,
+            ActualizarNombreProductoUseCase actualizarNombreProductoUseCase
     ) {
-        // Recibe los casos de uso como piezas ya listas para ejecutar acciones del negocio
+        // Recibe casos de uso listos para ejecutar acciones del negocio
         this.crearFranquiciaUseCase = crearFranquiciaUseCase;
         this.agregarSucursalAFranquiciaUseCase = agregarSucursalAFranquiciaUseCase;
         this.agregarProductoASucursalUseCase = agregarProductoASucursalUseCase;
         this.eliminarProductoDeSucursalUseCase = eliminarProductoDeSucursalUseCase;
         this.actualizarStockProductoUseCase = actualizarStockProductoUseCase;
         this.obtenerProductoConMasStockPorSucursalUseCase = obtenerProductoConMasStockPorSucursalUseCase;
+
+        // Recibe casos de uso extra para sumar puntos actualizando nombres
+        this.actualizarNombreFranquiciaUseCase = actualizarNombreFranquiciaUseCase;
+        this.actualizarNombreSucursalUseCase = actualizarNombreSucursalUseCase;
+        this.actualizarNombreProductoUseCase = actualizarNombreProductoUseCase;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<FranquiciaResponse> crearFranquicia(@Valid @RequestBody CrearFranquiciaRequest request) {
-        // Toma el nombre del JSON, ejecuta el caso de uso y devuelve la franquicia creada como JSON
+        // Recibe el nombre del JSON y crea la franquicia
         return crearFranquiciaUseCase.execute(request.getNombre())
                 .map(FranquiciaWebMapper::toResponse);
     }
@@ -74,7 +90,12 @@ public class FranquiciasController {
             @Valid @RequestBody CrearProductoRequest request
     ) {
         // Agrega un producto dentro de una sucursal y devuelve la franquicia actualizada
-        return agregarProductoASucursalUseCase.execute(franquiciaId, sucursalId, request.getNombre(), request.getStock())
+        return agregarProductoASucursalUseCase.execute(
+                        franquiciaId,
+                        sucursalId,
+                        request.getNombre(),
+                        request.getStock()
+                )
                 .map(FranquiciaWebMapper::toResponse);
     }
 
@@ -112,5 +133,38 @@ public class FranquiciasController {
                         item.productoNombre(),
                         item.stock()
                 ));
+    }
+
+    @PatchMapping("/{franquiciaId}/nombre")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> actualizarNombreFranquicia(
+            @PathVariable String franquiciaId,
+            @Valid @RequestBody ActualizarNombreRequest request
+    ) {
+        // Cambia el nombre de la franquicia y devuelve 204 porque no se necesita cuerpo
+        return actualizarNombreFranquiciaUseCase.execute(franquiciaId, request.getNombre());
+    }
+
+    @PatchMapping("/{franquiciaId}/sucursales/{sucursalId}/nombre")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> actualizarNombreSucursal(
+            @PathVariable String franquiciaId,
+            @PathVariable String sucursalId,
+            @Valid @RequestBody ActualizarNombreRequest request
+    ) {
+        // Cambia el nombre de la sucursal dentro de la franquicia y devuelve 204
+        return actualizarNombreSucursalUseCase.execute(franquiciaId, sucursalId, request.getNombre());
+    }
+
+    @PatchMapping("/{franquiciaId}/sucursales/{sucursalId}/productos/{productoId}/nombre")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> actualizarNombreProducto(
+            @PathVariable String franquiciaId,
+            @PathVariable String sucursalId,
+            @PathVariable String productoId,
+            @Valid @RequestBody ActualizarNombreRequest request
+    ) {
+        // Cambia el nombre del producto dentro de la sucursal y devuelve 204
+        return actualizarNombreProductoUseCase.execute(franquiciaId, sucursalId, productoId, request.getNombre());
     }
 }
